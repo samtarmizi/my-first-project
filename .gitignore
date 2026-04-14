@@ -2,3 +2,4 @@
 /logs
 /.env.backup
 /database.sql
+/public/.env
