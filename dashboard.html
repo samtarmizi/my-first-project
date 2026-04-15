@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0d6efd">
+  <title>Papan pemuka — Cikgu Tarmizi</title>
+  <meta name="description" content="Papan pemuka analitik portfolio.">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <style>
+    :root {
+      --glass-bg: rgba(255, 255, 255, 0.12);
+      --glass-border: rgba(255, 255, 255, 0.38);
+      --glass-shadow: 0 1.25rem 3rem rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.22);
+      --text-on-glass: rgba(255, 255, 255, 0.92);
+      --text-muted-glass: rgba(255, 255, 255, 0.72);
+    }
+
+    .dashboard-shell {
+      min-height: 100vh;
+      padding: clamp(1rem, 3vw, 1.75rem);
+      position: relative;
+      overflow-x: hidden;
+      background: linear-gradient(135deg, #0d6efd 0%, #6610f2 48%, #6f42c1 100%);
+    }
+
+    .dashboard-shell::before {
+      content: "";
+      position: fixed;
+      inset: -40% -20%;
+      background:
+        radial-gradient(ellipse 60% 50% at 20% 30%, rgba(255, 255, 255, 0.18) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 45% at 85% 70%, rgba(13, 110, 253, 0.35) 0%, transparent 50%),
+        radial-gradient(ellipse 40% 40% at 50% 100%, rgba(102, 16, 242, 0.25) 0%, transparent 45%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .glass-panel {
+      position: relative;
+      z-index: 1;
+      border-radius: 1.25rem;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    .glass-panel h1, .glass-panel h2, .glass-panel h3, .glass-panel .stat-value {
+      color: var(--text-on-glass);
+    }
+
+    .glass-panel .text-muted,
+    .glass-panel .small.text-white-50 {
+      color: var(--text-muted-glass) !important;
+    }
+
+    .stat-card {
+      padding: 1.25rem 1.35rem;
+      height: 100%;
+    }
+
+    .stat-card .icon-wrap {
+      width: 2.75rem;
+      height: 2.75rem;
+      border-radius: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      background: rgba(255, 255, 255, 0.18);
+      color: #fff;
+    }
+
+    .stat-value {
+      font-size: clamp(1.5rem, 4vw, 2rem);
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .chart-wrap {
+      position: relative;
+      height: min(280px, 42vw);
+      min-height: 220px;
+    }
+
+    .form-select-glass,
+    .form-control-glass {
+      background: rgba(255, 255, 255, 0.14) !important;
+      border: 1px solid rgba(255, 255, 255, 0.35) !important;
+      color: #fff !important;
+      border-radius: 0.65rem;
+    }
+
+    .form-select-glass:focus,
+    .form-control-glass:focus {
+      background: rgba(255, 255, 255, 0.2) !important;
+      border-color: rgba(255, 255, 255, 0.55) !important;
+      box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.15);
+      color: #fff !important;
+    }
+
+    .form-select-glass option {
+      background: #3d2a6e;
+      color: #fff;
+    }
+
+    .link-glass {
+      color: rgba(255, 255, 255, 0.95);
+      text-decoration: none;
+    }
+
+    .link-glass:hover {
+      color: #fff;
+      text-decoration: underline;
+      text-underline-offset: 0.15em;
+    }
+
+    /* Chatbot */
+    .chat-launcher {
+      position: fixed;
+      bottom: 1.25rem;
+      right: 1.25rem;
+      z-index: 1040;
+      width: 3.5rem;
+      height: 3.5rem;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      background: rgba(255, 255, 255, 0.95);
+      color: #0d6efd;
+      box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .chat-launcher:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0.6rem 1.75rem rgba(0, 0, 0, 0.3);
+    }
+
+    .chat-panel {
+      position: fixed;
+      bottom: 5.5rem;
+      right: 1.25rem;
+      z-index: 1039;
+      width: min(100%, 22rem);
+      max-height: min(70vh, 26rem);
+      display: none;
+      flex-direction: column;
+      border-radius: 1rem;
+      overflow: hidden;
+    }
+
+    .chat-panel.is-open {
+      display: flex;
+    }
+
+    .chat-header {
+      padding: 0.85rem 1rem;
+      background: rgba(13, 110, 253, 0.35);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+      color: var(--text-on-glass);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .chat-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.15);
+    }
+
+    .chat-bubble {
+      max-width: 95%;
+      padding: 0.65rem 0.85rem;
+      border-radius: 0.75rem 0.75rem 0.75rem 0.2rem;
+      background: rgba(255, 255, 255, 0.2);
+      color: var(--text-on-glass);
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    .chat-footer {
+      padding: 0.65rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      gap: 0.5rem;
+      background: rgba(0, 0, 0, 0.12);
+    }
+
+    .chat-footer input {
+      flex: 1;
+      font-size: 0.875rem;
+    }
+
+    .btn-chat-send {
+      background: rgba(255, 255, 255, 0.95);
+      color: #0d6efd;
+      border: none;
+      font-weight: 600;
+      border-radius: 0.5rem;
+      padding: 0.4rem 0.75rem;
+    }
+
+    .btn-chat-send:hover {
+      background: #fff;
+      color: #0a58ca;
+    }
+
+    .chat-close {
+      background: transparent;
+      border: none;
+      color: var(--text-on-glass);
+      padding: 0.2rem;
+      line-height: 1;
+      opacity: 0.85;
+    }
+
+    .chat-close:hover {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <a class="visually-hidden-focusable position-fixed top-0 start-0 p-3 text-white" style="z-index: 1050;" href="#main-content">Langkau ke kandungan</a>
+
+  <div class="dashboard-shell">
+    <div class="container-fluid position-relative" style="z-index: 1; max-width: 1400px; margin: 0 auto;" id="main-content">
+      <header class="glass-panel p-3 p-md-4 mb-4 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+        <div>
+          <p class="small text-uppercase text-white-50 mb-1" style="letter-spacing: 0.12em;">Portfolio</p>
+          <h1 class="h4 fw-bold mb-0">Papan pemuka</h1>
+          <p class="small mb-0 text-white-50 mt-1">Ringkasan pengguna, peranan, aktiviti &amp; data</p>
+        </div>
+        <nav class="d-flex flex-wrap gap-2 align-items-center">
+          <a class="link-glass small" href="index.html">Laman utama</a>
+          <span class="text-white-50 d-none d-sm-inline">|</span>
+          <a class="link-glass small" href="login.php">Log masuk</a>
+        </nav>
+      </header>
+
+      <!-- Filter -->
+      <section class="glass-panel p-3 p-md-4 mb-4" aria-label="Penapis">
+        <div class="row g-3 align-items-end">
+          <div class="col-12 col-md-3 col-lg-2">
+            <label for="filter-period" class="form-label small mb-1 text-white">Tempoh</label>
+            <select id="filter-period" class="form-select form-select-sm form-select-glass">
+              <option value="week">Minggu ini</option>
+              <option value="month" selected>Bulan ini</option>
+              <option value="year">Tahun ini</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-4 col-lg-3">
+            <label for="filter-role" class="form-label small mb-1 text-white">Peranan</label>
+            <select id="filter-role" class="form-select form-select-sm form-select-glass">
+              <option value="all" selected>Semua peranan</option>
+              <option value="admin">Pentadbir</option>
+              <option value="teacher">Guru</option>
+              <option value="student">Pelajar</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-5 col-lg-4">
+            <label for="filter-search" class="form-label small mb-1 text-white">Carian pantas</label>
+            <input type="search" id="filter-search" class="form-control form-control-sm form-control-glass" placeholder="Cari aktiviti atau modul…" autocomplete="off">
+          </div>
+        </div>
+      </section>
+
+      <!-- 4 cards -->
+      <section class="row g-3 g-md-4 mb-4" aria-label="Petunjuk utama">
+        <div class="col-6 col-lg-3">
+          <div class="glass-panel stat-card h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="icon-wrap"><i class="bi bi-people-fill" aria-hidden="true"></i></div>
+            </div>
+            <p class="small text-white-50 mb-1">Jumlah pengguna</p>
+            <p class="stat-value mb-0" id="stat-users">1,284</p>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="glass-panel stat-card h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="icon-wrap"><i class="bi bi-person-badge-fill" aria-hidden="true"></i></div>
+            </div>
+            <p class="small text-white-50 mb-1">Jumlah peranan</p>
+            <p class="stat-value mb-0" id="stat-roles">12</p>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="glass-panel stat-card h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="icon-wrap"><i class="bi bi-lightning-charge-fill" aria-hidden="true"></i></div>
+            </div>
+            <p class="small text-white-50 mb-1">Jumlah aktiviti</p>
+            <p class="stat-value mb-0" id="stat-activities">3,902</p>
+          </div>
+        </div>
+        <div class="col-6 col-lg-3">
+          <div class="glass-panel stat-card h-100">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="icon-wrap"><i class="bi bi-database-fill" aria-hidden="true"></i></div>
+            </div>
+            <p class="small text-white-50 mb-1">Jumlah data</p>
+            <p class="mb-0" id="stat-data"><span class="stat-value">48.2</span> <span class="fs-6 fw-normal text-white-50">GB</span></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Analytics -->
+      <section class="mb-2" aria-label="Analitik">
+        <h2 class="h6 fw-semibold text-white mb-3 px-1">Analitik</h2>
+        <div class="row g-3 g-md-4">
+          <div class="col-lg-4">
+            <div class="glass-panel p-3 p-md-4 h-100">
+              <h3 class="h6 fw-semibold mb-3">Carta pai — Pengagihan peranan</h3>
+              <div class="chart-wrap">
+                <canvas id="chart-pie" aria-label="Carta pai pengagihan peranan"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="glass-panel p-3 p-md-4 h-100">
+              <h3 class="h6 fw-semibold mb-3">Carta bar — Aktiviti mengikut bulan</h3>
+              <div class="chart-wrap">
+                <canvas id="chart-bar" aria-label="Carta bar aktiviti mengikut bulan"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="glass-panel p-3 p-md-4 h-100">
+              <h3 class="h6 fw-semibold mb-3">Graf garis — Pertumbuhan data</h3>
+              <div class="chart-wrap">
+                <canvas id="chart-line" aria-label="Graf garis pertumbuhan data"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Chatbot -->
+  <div class="chat-panel glass-panel" id="chat-panel" role="dialog" aria-labelledby="chat-title" aria-modal="false">
+    <div class="chat-header">
+      <span id="chat-title"><i class="bi bi-robot me-2" aria-hidden="true"></i>Pembantu</span>
+      <button type="button" class="chat-close" id="chat-close" aria-label="Tutup panel sembang">
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="chat-body" id="chat-body">
+      <div class="chat-bubble" id="chat-greeting">Hi, boleh saya bantu?</div>
+    </div>
+    <div class="chat-footer">
+      <input type="text" class="form-control form-control-glass" id="chat-input" placeholder="Taip mesej…" autocomplete="off" maxlength="500">
+      <button type="button" class="btn btn-chat-send" id="chat-send">Hantar</button>
+    </div>
+  </div>
+  <button type="button" class="chat-launcher" id="chat-toggle" aria-expanded="false" aria-controls="chat-panel" title="Buka pembantu sembang">
+    <i class="bi bi-chat-dots-fill" aria-hidden="true"></i>
+  </button>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+  <script>
+    (function () {
+      const chartColors = {
+        grid: 'rgba(255, 255, 255, 0.15)',
+        tick: 'rgba(255, 255, 255, 0.75)',
+        fills: [
+          'rgba(255, 193, 7, 0.85)',
+          'rgba(13, 202, 240, 0.85)',
+          'rgba(25, 135, 84, 0.85)',
+          'rgba(220, 53, 69, 0.75)',
+          'rgba(255, 255, 255, 0.45)',
+        ],
+        line: 'rgba(255, 255, 255, 0.95)',
+        lineFill: 'rgba(255, 255, 255, 0.12)',
+      };
+
+      const datasets = {
+        week: {
+          stats: { users: 284, roles: 12, activities: 412, data: '12.4 GB' },
+          pie: [42, 35, 18, 5],
+          bar: [120, 95, 88, 102, 110, 98, 115],
+          barLabels: ['Isn', 'Sel', 'Rab', 'Kha', 'Jum', 'Sab', 'Aha'],
+          line: [8.2, 9.1, 10.4, 11.0, 11.8, 12.1, 12.4],
+        },
+        month: {
+          stats: { users: 1284, roles: 12, activities: 3902, data: '48.2 GB' },
+          pie: [38, 32, 22, 8],
+          bar: [280, 310, 295, 340, 360, 420, 380],
+          barLabels: ['Jan', 'Feb', 'Mac', 'Apr', 'Mei', 'Jun', 'Jul'],
+          line: [32, 35, 38, 40, 43, 45, 48.2],
+        },
+        year: {
+          stats: { users: 8420, roles: 12, activities: 28400, data: '312 GB' },
+          pie: [40, 30, 22, 8],
+          bar: [2100, 2300, 2450, 2600, 2780, 2920],
+          barLabels: ['S1', 'S2', 'S3', 'S4', 'S5', 'S6'],
+          line: [180, 210, 245, 268, 290, 312],
+        },
+      };
+
+      let pieChart, barChart, lineChart;
+
+      Chart.defaults.color = chartColors.tick;
+      Chart.defaults.borderColor = chartColors.grid;
+      Chart.defaults.font.family = 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif';
+
+      function formatUsers(n) {
+        return n.toLocaleString('ms-MY');
+      }
+
+      function updateStats(period) {
+        const d = datasets[period];
+        document.getElementById('stat-users').textContent = formatUsers(d.stats.users);
+        document.getElementById('stat-roles').textContent = String(d.stats.roles);
+        document.getElementById('stat-activities').textContent = formatUsers(d.stats.activities);
+        const dataEl = document.getElementById('stat-data');
+        const m = String(d.stats.data).match(/^([\d.,]+)\s+(\S+)$/);
+        if (m) {
+          dataEl.innerHTML =
+            '<span class="stat-value">' + m[1] + '</span> <span class="fs-6 fw-normal text-white-50">' + m[2] + '</span>';
+        } else {
+          dataEl.textContent = d.stats.data;
+        }
+      }
+
+      function buildCharts(period) {
+        const d = datasets[period];
+
+        if (pieChart) pieChart.destroy();
+        if (barChart) barChart.destroy();
+        if (lineChart) lineChart.destroy();
+
+        pieChart = new Chart(document.getElementById('chart-pie'), {
+          type: 'pie',
+          data: {
+            labels: ['Pentadbir', 'Guru', 'Pelajar', 'Tetamu'],
+            datasets: [{
+              data: d.pie,
+              backgroundColor: chartColors.fills,
+              borderWidth: 2,
+              borderColor: 'rgba(255,255,255,0.35)',
+            }],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'bottom',
+                labels: { padding: 12, usePointStyle: true },
+              },
+            },
+          },
+        });
+
+        barChart = new Chart(document.getElementById('chart-bar'), {
+          type: 'bar',
+          data: {
+            labels: d.barLabels,
+            datasets: [{
+              label: 'Aktiviti',
+              data: d.bar,
+              backgroundColor: 'rgba(255, 255, 255, 0.35)',
+              borderColor: 'rgba(255, 255, 255, 0.55)',
+              borderWidth: 1,
+              borderRadius: 6,
+            }],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { grid: { display: false } },
+              y: {
+                beginAtZero: true,
+                grid: { color: chartColors.grid },
+              },
+            },
+          },
+        });
+
+        lineChart = new Chart(document.getElementById('chart-line'), {
+          type: 'line',
+          data: {
+            labels: d.barLabels.length >= d.line.length ? d.barLabels.slice(0, d.line.length) : d.barLabels,
+            datasets: [{
+              label: 'Data (GB)',
+              data: d.line,
+              fill: true,
+              backgroundColor: chartColors.lineFill,
+              borderColor: chartColors.line,
+              borderWidth: 2,
+              tension: 0.35,
+              pointBackgroundColor: chartColors.line,
+              pointRadius: 3,
+            }],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { grid: { display: false } },
+              y: {
+                beginAtZero: true,
+                grid: { color: chartColors.grid },
+              },
+            },
+          },
+        });
+      }
+
+      function applyFilters() {
+        const period = document.getElementById('filter-period').value;
+        updateStats(period);
+        buildCharts(period);
+      }
+
+      document.getElementById('filter-period').addEventListener('change', applyFilters);
+      document.getElementById('filter-role').addEventListener('change', function () {
+        /* Demo: role hanya mengubah salutan stat ringkas */
+        applyFilters();
+      });
+      document.getElementById('filter-search').addEventListener('input', function () {
+        /* Demo: tiada backend — kosongkan carian tidak mengubah carta */
+      });
+
+      applyFilters();
+
+      /* Chatbot */
+      const panel = document.getElementById('chat-panel');
+      const toggle = document.getElementById('chat-toggle');
+      const closeBtn = document.getElementById('chat-close');
+      const input = document.getElementById('chat-input');
+      const send = document.getElementById('chat-send');
+      const body = document.getElementById('chat-body');
+
+      function setOpen(open) {
+        panel.classList.toggle('is-open', open);
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (open) input.focus();
+      }
+
+      toggle.addEventListener('click', function () {
+        setOpen(!panel.classList.contains('is-open'));
+      });
+      closeBtn.addEventListener('click', function () {
+        setOpen(false);
+      });
+
+      function addBubble(text, outgoing) {
+        const div = document.createElement('div');
+        div.className = 'chat-bubble mt-2' + (outgoing ? ' ms-auto' : '');
+        div.style.borderRadius = outgoing ? '0.75rem 0.75rem 0.2rem 0.75rem' : '';
+        div.style.background = outgoing ? 'rgba(13, 110, 253, 0.45)' : 'rgba(255, 255, 255, 0.2)';
+        div.textContent = text;
+        body.appendChild(div);
+        body.scrollTop = body.scrollHeight;
+      }
+
+      function reply() {
+        addBubble('Terima kasih! Ini ialah paparan demo — sambungan ke bot sebenar boleh ditambah kemudian.', false);
+      }
+
+      send.addEventListener('click', function () {
+        const t = input.value.trim();
+        if (!t) return;
+        addBubble(t, true);
+        input.value = '';
+        setTimeout(reply, 400);
+      });
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          send.click();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
